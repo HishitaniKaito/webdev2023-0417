@@ -1,26 +1,28 @@
-name: Commit Log
-
+name: Generate Commit Message Files
 on:
   push:
     branches:
-      - main
+      - main # 必要に応じてブランチ名を変更してください
 
 jobs:
-  generate_log:
+  generate_commit_messages:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Generate commit log
+      - name: Generate Commit Message Files
         run: |
-          git log --pretty=format:"%h - %s" --since="1 week ago" > commit_log.md
+          git log --pretty=format:"%s" > commit_messages.txt
+          while IFS= read -r line; do
+            timestamp=$(date +"%Y%m%d_%H%M%S")
+            echo "$line" > "${timestamp}.md"
+            git add "${timestamp}.md"
+          done < commit_messages.txt
 
-      - name: Commit and push log
+      - name: Commit Changes
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          git add commit_log.md
-          git commit -m "Update commit log"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Add commit message files" --author "GitHub Action <action@github.com>"
           git push
