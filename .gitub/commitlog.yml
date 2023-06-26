@@ -1,0 +1,26 @@
+name: Commit Log
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate_log:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Generate commit log
+        run: |
+          git log --pretty=format:"%h - %s" --since="1 week ago" > commit_log.md
+
+      - name: Commit and push log
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add commit_log.md
+          git commit -m "Update commit log"
+          git push
